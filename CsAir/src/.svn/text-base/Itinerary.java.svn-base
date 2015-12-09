@@ -1,0 +1,64 @@
+import java.util.ArrayList;
+
+public class Itinerary {
+	private static ArrayList<Flight> legs;
+	private static ArrayList<Flight> cityFlight;
+
+	public Itinerary(Flight firstLeg) {
+		legs = new ArrayList<Flight>();
+		cityFlight = new ArrayList<Flight>();
+		legs.add(firstLeg);
+	}
+
+	public void appendCity(City city) {
+		cityFlight = legs.get(legs.size() - 1).getDestination().flightList;
+		for (int i = 0; i < cityFlight.size(); i++) {
+			if (city.getCode().equals(cityFlight.get(i).destination.getCode())) {
+				legs.add(cityFlight.get(i));
+				return;
+			}
+		}
+		throw new IllegalArgumentException();
+	}
+
+	public double cost() {
+		double cost = 0.35;
+		double totalCost = 0;
+		for (int i = 0; i < legs.size(); i++) {
+			if (cost >= 0 && i > 0)
+				cost -= 0.05;
+			totalCost += cost * legs.get(i).distance;
+		}
+		return totalCost;
+	}
+
+	public double duration() {
+		double durationTime = 0.0;
+		double layoverTime = 0.0;
+		for (int i = 0; i < legs.size(); i++) {
+			if (i > 0)
+				layoverTime += 120 - (legs.get(i).getSource().getFlightList()
+						.size() - 1) * 10.0;
+			if (legs.get(i).distance >= 400) {
+				durationTime += 200.0 / ((0 + 750.0) / 2.0)
+						+ ((legs.get(i).distance - 400) / 750.0) + 200.0
+						/ ((0 + 750) / 2.0);
+			}
+			if (legs.get(i).distance < 400) {
+				double acceleration = 750.0 / (200.0 / ((0 + 750) / 2.0)); // fixed.
+				durationTime += Math.sqrt(legs.get(i).distance / acceleration);
+			}
+		}
+		return durationTime + layoverTime / 60;
+	}
+
+	public int distance() {
+		int totalDistance = 0;
+		for (int i = 0; i < legs.size(); i++) {
+			totalDistance += legs.get(i).getDistance();
+		}
+		return totalDistance;
+
+	}
+
+}
